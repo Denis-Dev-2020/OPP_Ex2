@@ -5,6 +5,14 @@ import api.DirectedWeightedGraphAlgorithms;
 import api.EdgeData;
 import api.NodeData;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class _DirectedWeighedGraphAlgorithms implements DirectedWeightedGraphAlgorithms {
@@ -51,6 +59,8 @@ public class _DirectedWeighedGraphAlgorithms implements DirectedWeightedGraphAlg
             }
         }
     }
+
+
     @Override
     public boolean isConnected() {
         /**dfs for each node**/
@@ -168,28 +178,28 @@ public class _DirectedWeighedGraphAlgorithms implements DirectedWeightedGraphAlg
                         dummy1 = temp;
                         dummy2 = temp2;
                     }
-                    System.out.println("("+temp+","+temp2+")    =  "+ActuallDistance);
+                    //System.out.println("("+temp+","+temp2+")    =  "+ActuallDistance);
                     ActuallDistance = 0;
                 }
             }
             if (NimbusMaximus>0){
-                System.out.println("******************"+NimbusMaximus);
+                //System.out.println("******************"+NimbusMaximus);
                 ecentricity.add(NimbusMaximus);
                 firstVertexList.add(dummy1);
                 secondVertexList.add(dummy2);
                 NimbusMaximus = -1;
             }
         }
-        System.out.print("\n\n[");
+        //System.out.print("\n\n[");
         for(int i = 0 ; i < ecentricity.size() ; i++){
             if (ecentricity.get(i)<ecentricityMinimum){
                 ecentricityMinimum = ecentricity.get(i);
                 dummy1 = firstVertexList.get(i);
                 dummy2 = secondVertexList.get(i);
             }
-            System.out.print(ecentricity.get(i)+",");
+            //System.out.print(ecentricity.get(i)+",");
         }
-        System.out.print("]");
+        //System.out.print("]");
         System.out.println("\n\n("+dummy1+","+dummy2+")   "+ecentricityMinimum);
         return g.getNode(dummy1);
     }
@@ -263,42 +273,114 @@ public class _DirectedWeighedGraphAlgorithms implements DirectedWeightedGraphAlg
     }
     @Override
     public List<NodeData> tsp(List<NodeData> cities) {
-        ArrayList<NodeData> ReturnPath = new ArrayList<>();
-        //~~~~~~~~~~~~ LIST OF CITIES TO PRIMITIVE INT ARRAY OF VERTICES ~~~~~~~~~~~//
-        int[] arrOfKeys = new int[cities.size()];
-        for(int i = 0; i < cities.size(); i++) {
-            if (cities.get(i) != null) {
-                arrOfKeys[i] = cities.get(i).getKey();
-            }
-        }
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-        getPermutations(arrOfKeys);
-        if (PathsList.size()>0){
-            int [] ShortestPath = new int[PathsList.get(0).length];
-            double ShortestPathLength = Integer.MAX_VALUE;
-            for ( int iii = 0;  iii < PathsList.size() ; iii++){
-                if (TraverseOnArrayToCheckIfPathExists_RtrnZeroIfNoPath(PathsList.get(iii))<ShortestPathLength){
-                    ShortestPathLength = TraverseOnArrayToCheckIfPathExists_RtrnZeroIfNoPath(PathsList.get(iii));
-                    ShortestPath = PathsList.get(iii);
+
+            ArrayList<NodeData> ReturnPath = new ArrayList<>();
+            //~~~~~~~~~~~~ LIST OF CITIES TO PRIMITIVE INT ARRAY OF VERTICES ~~~~~~~~~~~//
+            int[] arrOfKeys = new int[cities.size()];
+            for(int i = 0; i < cities.size(); i++) {
+                if (cities.get(i) != null) {
+                    arrOfKeys[i] = cities.get(i).getKey();
                 }
             }
-            for (int j = 0 ; j < ShortestPath.length ; j++){
-                ReturnPath.add(g.g.get(ShortestPath[j]));
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+            getPermutations(arrOfKeys);
+            if (PathsList.size()>0){
+                int [] ShortestPath = new int[PathsList.get(0).length];
+                double ShortestPathLength = Integer.MAX_VALUE;
+                for ( int iii = 0;  iii < PathsList.size() ; iii++){
+                    if (TraverseOnArrayToCheckIfPathExists_RtrnZeroIfNoPath(PathsList.get(iii))<ShortestPathLength){
+                        ShortestPathLength = TraverseOnArrayToCheckIfPathExists_RtrnZeroIfNoPath(PathsList.get(iii));
+                        ShortestPath = PathsList.get(iii);
+                    }
+                }
+                for (int j = 0 ; j < ShortestPath.length ; j++){
+                    ReturnPath.add(g.g.get(ShortestPath[j]));
+                }
+                return ReturnPath;
             }
-            return ReturnPath;
-        }
+
         return null;
     }
 
     @Override
     public boolean save(String file) {
-        return false;
+        //saves this graph to json file
+        JSONObject json = new JSONObject();
+        JSONArray Nodes = new JSONArray();
+        JSONArray Edges = new JSONArray();
+        // Iterator<NodeData> i = this.g.nodeIter();
+        for (Iterator<NodeData> i = this.g.nodeIter(); i.hasNext(); ) {
+            _NodeData v = (_NodeData) i.next();
+            JSONObject jnode = new JSONObject();
+            jnode.put("pos", v.getLocation2());
+            jnode.put("id", v.getKey());
+            Nodes.add(jnode);
+
+        }
+        //Iterator<EdgeData> j = this.g.edgeIter();
+        for (Iterator<EdgeData> j = this.g.edgeIter(); j.hasNext(); ) {
+
+            _EdgeData edge = (_EdgeData) j.next();
+            JSONObject jedge = new JSONObject();
+            jedge.put("src", edge.getSrc());
+            jedge.put("w", edge.getWeight());
+            jedge.put("dest", edge.getDest());
+            Edges.add(jedge);
+        }
+
+        json.put("Edges", Edges);
+        json.put("Nodes", Nodes);
+        try (FileWriter fw = new FileWriter(file)) {
+            fw.write(json.toJSONString());
+            fw.flush();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     @Override
     public boolean load(String file) {
-        return false;
+        //loading json file to graph obj
+        {
+            try {
+                this.g = new _DirectedWeightedGraph();
+                Object o = new JSONParser().parse(new FileReader(file));
+                JSONObject jsonObject = (JSONObject) o;
+                JSONArray nodes = (JSONArray) jsonObject.get("Nodes");
+                Iterator i = nodes.iterator();
+                while (i.hasNext()) {
+                    HashMap<String, Object> objectHashMap = (HashMap<String, Object>) i.next();
+                    //  HashMap<String, Object> objectHashMap = (HashMap<String, Object>) i.next();
+                    // GeoLocationClass location = new GeoLocationClass((String) objectHashMap.get("pos"));
+
+                    _NodeData n = new _NodeData(Integer.parseInt(String.valueOf(objectHashMap.get("id"))));
+                    String s=(String) objectHashMap.get("pos");
+                    String[] s1 =s.split(",");
+                    n.setLocation(Double.parseDouble(s1[0]),Double.parseDouble(s1[1]),Double.parseDouble(s1[2]));
+
+                    this.g.addNode(n);
+                }
+                JSONArray edges = (JSONArray) jsonObject.get("Edges");
+
+                for (Iterator<HashMap> j = edges.iterator(); j.hasNext(); ) {
+                    HashMap<String, Object> objectHashMap2 = (HashMap<String, Object>) j.next();
+                    int src = (int) (long) objectHashMap2.get("src");
+                    int dest = (int) (long) objectHashMap2.get("dest");
+                    double weight = (double) objectHashMap2.get("w");
+                    this.g.connect(src, dest, weight);
+                }
+                //loads json to this graph
+                init(g);
+            } catch (ParseException | IOException e) {
+                return false;
+            }
+        }
+
+        //System.out.println("true");
+        return true;
     }
 }
+
 
 
