@@ -85,9 +85,6 @@ public class Ex2 {
         GUI testGUI = new GUI();
 
 
-        System.out.println("423234234");
-
-
 
     }
 }
