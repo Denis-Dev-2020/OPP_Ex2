@@ -75,7 +75,16 @@ so we used this methods to reach O(1) with this directed graph (can be undirecte
 
   - save - saves the current graph and edges as it is with all the changes     O(n)
   
+## Testing :
+
+  We have conducted several tests on all of our algorithms with great results
+  we attached a JUnit test file that check all of our operations with several different
+  graphs , on other test we checked the speed of our algorithms for example here the 
+  Dijekstra's shortest distance algorithm :
   
+  - for 1000 nodes graph we received the speed of msec(672.951)
+  
+  - for 10000 nodes graph we received the speed of msec(1329.819)
   
   
 ## GUI :
