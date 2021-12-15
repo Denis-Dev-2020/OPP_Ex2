@@ -93,6 +93,20 @@ public  class _NodeData implements NodeData,GeoLocation,Comparable<_NodeData> {
         GeoLocation b = this; //the interface will take fields and functions that needed
         return b;
     }
+
+
+    public String getLocation2() {
+        //Point a = this.coord;
+        String b  = this.x+","+this.y+","+this.z; //the interface will take fields and functions that needed
+        return b;
+    }
+    public void setLocation(double x,double y, double z) {
+        this.x = x;
+        this.y =y;
+        this.z = z;
+    }
+
+
     @Override
     public void setLocation(GeoLocation p) {
         this.x = p.x();
