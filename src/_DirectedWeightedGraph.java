@@ -40,8 +40,6 @@ public class _DirectedWeightedGraph implements DirectedWeightedGraph {
         this.g = new HashMap<Integer,NodeData>(o.g);
         this.ItHelper2 = new ArrayList<>(o.ItHelper2);
 
-
-
     }
 
     @Override
