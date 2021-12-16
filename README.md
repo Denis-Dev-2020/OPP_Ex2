@@ -75,6 +75,11 @@ so we used this methods to reach O(1) with this directed graph (can be undirecte
 
   - save - saves the current graph and edges as it is with all the changes     O(n)
   
+## Execute :
+
+  just execute the jar file it will open a window that will show you buttons with options
+  
+  
 ## Testing :
 
   We have conducted several tests on all of our algorithms with great results
